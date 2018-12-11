@@ -1,0 +1,121 @@
+// 탭4의 오늘의 일기 CDailyDlg.h
+#pragma once
+#include "afxwin.h"
+#include "atlimage.h"
+
+
+// CDailyDlg 대화 상자입니다.
+
+class CDailyDlg : public CDialogEx
+{
+	DECLARE_DYNAMIC(CDailyDlg)
+
+public:
+	CDailyDlg(CWnd* pParent = NULL);   // 표준 생성자입니다.
+	virtual ~CDailyDlg();
+
+// 대화 상자 데이터입니다.
+#ifdef AFX_DESIGN_TIME
+	enum { IDD = IDD_DIALOG_DAILY };
+#endif
+
+protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 지원입니다.
+
+	DECLARE_MESSAGE_MAP()
+public:
+	int m_nSelDaily;
+	virtual BOOL OnInitDialog();
+	CStatic m_pic;
+	CImage m_img;
+	afx_msg void OnBnClickedButtonPicture();
+	afx_msg void OnBnClickedButtonWriting();
+};
+
+//CDailyDlg.cpp
+// DailyDlg.cpp : 구현 파일입니다.
+//
+
+#include "stdafx.h"
+#include "MFCApplication1.h"
+#include "DailyDlg.h"
+#include "afxdialogex.h"
+
+
+// CDailyDlg 대화 상자입니다.
+
+IMPLEMENT_DYNAMIC(CDailyDlg, CDialogEx)
+
+CDailyDlg::CDailyDlg(CWnd* pParent /*=NULL*/)
+	: CDialogEx(IDD_DIALOG_DAILY, pParent)
+	, m_nSelDaily(0)
+{
+
+}
+
+CDailyDlg::~CDailyDlg()
+{
+}
+
+void CDailyDlg::DoDataExchange(CDataExchange* pDX)
+{
+	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_STATIC_DAILY, m_pic);
+}
+
+
+BEGIN_MESSAGE_MAP(CDailyDlg, CDialogEx)
+	ON_BN_CLICKED(IDC_BUTTON_PICTURE, &CDailyDlg::OnBnClickedButtonPicture)
+	ON_BN_CLICKED(IDC_BUTTON_WRITING, &CDailyDlg::OnBnClickedButtonWriting)
+END_MESSAGE_MAP()
+
+
+// CDailyDlg 메시지 처리기입니다.
+
+
+BOOL CDailyDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+
+	// TODO:  여기에 추가 초기화 작업을 추가합니다.
+	m_nSelDaily = 1;
+	return TRUE;  // return TRUE unless you set the focus to a control
+				  // 예외: OCX 속성 페이지는 FALSE를 반환해야 합니다.
+}
+
+
+void CDailyDlg::OnBnClickedButtonPicture()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+	CString szFilter = _T("Image (*.BMP, *.PNG, *.JPG) | *.BMP;*.PNG;*.JPG | All Files(*.*)|*.*||");
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY, szFilter);
+
+	if (IDOK == dlg.DoModal())
+	{
+		CString strPathName = dlg.GetPathName();
+		CDC *pDc = m_pic.GetWindowDC();
+		CDC memdc;
+		CImage m_bmpBitmap;
+		int width = 300, height = 180;
+		m_bmpBitmap.Destroy();
+		m_bmpBitmap.Load(strPathName);
+		memdc.CreateCompatibleDC(pDc);
+		m_bmpBitmap.Draw(pDc->m_hDC, 0, 0, width, height);
+		pDc->SetStretchBltMode(COLORONCOLOR);
+		pDc->StretchBlt(0, 0, width, height, &memdc, 0, 0, width, height, SRCCOPY);
+		m_pic.ReleaseDC(pDc);
+		pDc->DeleteDC();
+		pDc = NULL;
+	}
+}
+
+
+void CDailyDlg::OnBnClickedButtonWriting()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CString str;
+	GetDlgItemText(IDC_EDIT_DAILY, str);
+	SetDlgItemText(IDC_EDIT_DAILYVIEW, str);
+	GotoDlgCtrl(GetDlgItem(IDC_EDIT_DAILY));
+}
